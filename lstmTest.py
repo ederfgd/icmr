@@ -2,6 +2,7 @@
 # It is defined by the kaggle/python docker image: https://github.com/kaggle/docker-python
 # For example, here's several helpful packages to load in
 
+import sys
 import numpy as np # linear algebra
 import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 import unicodedata
@@ -24,12 +25,27 @@ def main():
     # --------------------------------------------------------------------------
     # ------- FLAGS ------------------------------------------------------------
     # --------------------------------------------------------------------------
-    input_file = "TESTE_FULL"
-    embed_dim = 128
-    lstm_out = 196
-    max_features = 2000
-    batch_size = 32
-    epochs = 10
+    param_count = 8
+
+    if(len(sys.argv) < param_count)
+    {
+        print("Não foram passados todos os parâmetros")
+        print("Os parâmetros devem ser:\n- arquivo de treino\n- arquivo de saída do modelo\n- quantidade de 'epochs'\n- batch_size (32)\n- training_size (0,67)\n- embed_dim (128)\n- lstm_out (196)\n- Tokenizer max_features (2000)")
+        return
+    }
+
+    input_file = sys.argv[1]
+    output_file = sys.argv[2]
+    epochs = int(sys.argv[3])
+    batch_size = int(sys.argv[4])
+    training_size = float(sys.argv[5])
+    embed_dim = int(sys.argv[6])
+    lstm_out = int(sys.argv[7])
+    max_features = int(sys.argv[8])
+
+    if training_size < 0 or training_size > 1:
+        print("O tamanho do treino deve ser um valor em [0, 1]")
+        return
 
     # --------------------------------------------------------------------------
     # --------------------------------------------------------------------------
@@ -69,7 +85,7 @@ def main():
     Y = pd.get_dummies(sentiment).values
     print(X.shape)
     print(Y.shape)
-    X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size = 0.33, random_state = 42)
+    X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size = (1-training_size), random_state = 42)
     print(X_train.shape,Y_train.shape)
     print(X_test.shape,Y_test.shape)
 
@@ -102,7 +118,7 @@ def main():
     print("pos_acc", pos_correct/pos_cnt*100, "%")
     print("neg_acc", neg_correct/neg_cnt*100, "%")
 
-    model.save("output.hdf5")
+    model.save(output_file)
 
 if __name__ == "__main__":
     main()
